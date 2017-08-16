@@ -1,0 +1,74 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html>  
+<head>  
+    <meta charset="UTF-8">  
+    <title>My WebSocket</title>  
+
+    <script th:src="@{js/vue.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/jquery-3.1.1.js}"></script>
+    <script type="text/javascript" th:src="@{js/sockjs.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/stomp.js}"></script>
+    
+</head>  
+<body>  
+Welcome To My WebSocket.<br/><br/>  
+    <div id="ws">  
+    <input id="text" type="text"/>  
+    <button onclick="sendMsg()">Send</button>  
+    <button onclick="closeWS()" :disabled="!opened">Close</button>  
+    <button onclick="openWS()"  :disabled="opened">Open</button>  
+    <div v-html="msg"></div>  
+    </div>  
+</body>  
+  
+<script type="text/javascript">  
+    var websocket = null;  
+    var stompClient = null;
+    var wsVue = new Vue({  
+        el: '#ws',  
+        data: {  
+            msg: "welcome to my websocket...<br/>",  
+            opened: false  
+        },  
+        mounted: function(){  
+            initWs();  
+        }  
+    });  
+  
+   function setConnected(connected) {
+        document.getElementById("connect").disabled = connected;
+        document.getElementById("disconnect").disabled = !connected;
+        document.getElementById("conversationDiv").style.visibility = connected ? 'visible' : 'hidden';
+//        $("#connect").disabled = connected;
+//        $("#disconnect").disabled = !connected;
+        $("#response").html();
+    }
+    function initWs() {  
+       var socket = new SockJS("/websocket");
+       stompClient = Stomp.over(socket);
+    }  
+  
+    //update message to vue and then in div  
+    function setMessageContent(content) {  
+        wsVue.msg += content  + '<br/>';  
+    }  
+  
+    //click to close the websocket  
+    function closeWS() {  
+        websocket.close();  
+        wsVue.opened = false;  
+    }  
+  
+    //click to open the websocket  
+    function openWS() {  
+        initWs();  
+    }  
+  
+    //click to send message  
+    function sendMsg() {  
+        var message = document.getElementById('text').value;  
+         stompClient.send("/welcome", {}, JSON.stringify({'message': message}));
+    }  
+</script>  
+</body>  
+</html>  
