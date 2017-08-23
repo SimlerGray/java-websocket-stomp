@@ -7,8 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JsonUtils {
 
@@ -170,4 +175,22 @@ public class JsonUtils {
 
         return retValue;
     }
+
+    public static String mapToJson(Object o){
+        Gson gson = new Gson();
+        return gson.toJson(o);
+    }
+
+    public static Map<String,String> parseJsonWithGson(String jsonData) {
+        Gson gson = new Gson();
+        JsonParser parser = new JsonParser();
+        JsonObject object = parser.parse(jsonData).getAsJsonObject();
+        Map<String,Object> result = gson.fromJson(object, Map.class);
+        Map<String,String> map = new HashMap<>();
+        for (Map.Entry<String,Object> entry:result.entrySet()){
+            map.put(entry.getKey(),mapToJson(entry.getValue()));
+        }
+        return map;
+    }
+
 }
